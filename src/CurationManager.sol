@@ -28,12 +28,9 @@ contract CurationManager is Context {
     error CurationLimitExceeded();
 
     /* ===== EVENTS ===== */
-    event ListingAdded(address indexed curator, address indexed listingAddress);
+    event ListingAdded(address indexed curator, uint256 indexed listingToken);
 
-    event ListingRemoved(
-        address indexed curator,
-        address indexed listingAddress
-    );
+    event ListingRemoved(address indexed curator, uint256 indexed listingToken);
 
     event TitleUpdated(address indexed sender, string title);
 
@@ -50,10 +47,10 @@ contract CurationManager is Context {
     /* ===== VARIABLES ===== */
 
     // dynamic array of ethereum addresss where curation listings are stored
-    address[] public listings;
+    uint256[] public listings;
 
     // ethereum address -> curator address mapping
-    mapping(address => address) public listingCurators;
+    mapping(uint256 => address) public listingCurators;
 
     // title of curation contract
     string public title;
@@ -130,7 +127,7 @@ contract CurationManager is Context {
     /* ===== CURATION FUNCTIONS ===== */
 
     /// @notice add listing to listings array + address -> curator mapping
-    function addListing(address listing)
+    function addListing(uint256 listing)
         external
         onlyIfActive
         onlyCurator
@@ -140,11 +137,6 @@ contract CurationManager is Context {
             revert ListingAlreadyExists();
         }
 
-        require(
-            listing != address(0),
-            "listing address cannot be the zero address"
-        );
-
         listingCurators[listing] = _msgSender();
 
         listings.push(listing);
@@ -153,7 +145,7 @@ contract CurationManager is Context {
     }
 
     /// @notice removes listing from listings array + address -> curator mapping
-    function removeListing(address listing) external onlyIfActive onlyCurator {
+    function removeListing(uint256 listing) external onlyIfActive onlyCurator {
         if (listingCurators[listing] != _msgSender()) {
             revert Access_Unauthorized();
         }
@@ -186,7 +178,7 @@ contract CurationManager is Context {
     /* ===== VIEW FUNCTIONS ===== */
 
     // view function that returns array of all active listings
-    function viewAllListings() external view returns (address[] memory) {
+    function viewAllListings() external view returns (uint256[] memory) {
         // returns empty array if no active listings
         return listings;
     }
@@ -194,7 +186,7 @@ contract CurationManager is Context {
     /* ===== INTERNAL HELPERS ===== */
 
     // finds index of listing in listings array
-    function find(address value) internal view returns (uint256) {
+    function find(uint256 value) internal view returns (uint256) {
         uint256 i = 0;
         while (listings[i] != value) {
             i++;
@@ -214,7 +206,7 @@ contract CurationManager is Context {
     }
 
     // combines find + removeByIndex internal functions to remove
-    function removeByValue(address value) internal {
+    function removeByValue(uint256 value) internal {
         uint256 i = find(value);
         removeByIndex(i);
     }
