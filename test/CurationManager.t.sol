@@ -73,7 +73,7 @@ contract ContractTest is Test {
         assertEq(curationManager.zoraAsksV1_1(), address(zoraAsksV1_1));
     }
 
-    function testFail_nonOwnerAddListing() public {
+    function testFail_nonCuratorAddListing() public {
         vm.prank(address(2));
         curationManager.addListing(2);
     }
