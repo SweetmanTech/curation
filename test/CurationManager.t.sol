@@ -35,6 +35,10 @@ contract ContractTest is Test {
         assertTrue(curationManager.isActive());
         assertFalse(curationManager.isFinalized());
         assertEq(curationManager.curationLimit(), 0);
+        assertEq(
+            curationManager.zoraTransferHelper(),
+            0x909e9efE4D87d1a6018C2065aE642b6D0447bc91
+        );
     }
 
     function testFail_nonOwnerAddListing() public {
