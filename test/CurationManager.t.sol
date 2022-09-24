@@ -4,6 +4,8 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 import "src/CurationManager.sol";
 import "openzeppelin-contracts/token/ERC721/ERC721.sol";
+import "src/utils/ZoraV3/ERC721TransferHelper.sol";
+import "src/utils/ZoraV3/ZoraModuleManager.sol";
 
 contract CurationPass is ERC721 {
     uint256 tokenId = 1;
@@ -19,11 +21,23 @@ contract CurationPass is ERC721 {
 contract ContractTest is Test {
     CurationManager curationManager;
     CurationPass curationPass;
+    ERC721TransferHelper zoraTransferHelper;
+    ZoraModuleManager zoraModuleManager;
     string title = "sint mongs";
 
     function setUp() public {
+        zoraModuleManager = new ZoraModuleManager(address(this), address(0));
+        zoraTransferHelper = new ERC721TransferHelper(
+            address(zoraModuleManager)
+        );
         curationPass = new CurationPass();
-        curationManager = new CurationManager(title, curationPass, 0, true);
+        curationManager = new CurationManager(
+            title,
+            curationPass,
+            0,
+            true,
+            address(zoraTransferHelper)
+        );
     }
 
     function testCan_initializeStateVariables() public {
@@ -37,7 +51,7 @@ contract ContractTest is Test {
         assertEq(curationManager.curationLimit(), 0);
         assertEq(
             curationManager.zoraTransferHelper(),
-            0x909e9efE4D87d1a6018C2065aE642b6D0447bc91
+            address(zoraTransferHelper)
         );
     }
 

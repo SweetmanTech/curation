@@ -46,26 +46,29 @@ contract CurationManager is Context {
 
     /* ===== VARIABLES ===== */
 
-    // dynamic array of ethereum addresss where curation listings are stored
+    /// @notice dynamic array of ethereum addresss where curation listings are stored
     uint256[] public listings;
 
-    // ethereum address -> curator address mapping
+    /// @notice ethereum address -> curator address mapping
     mapping(uint256 => address) public listingCurators;
 
-    // title of curation contract
+    /// @notice title of curation contract
     string public title;
 
-    // intitalizing curation pass used to gate curation functionality
+    /// @notice intitalizing curation pass used to gate curation functionality
     IERC721 public curationPass;
 
-    // public bool that freezes all curation activity for curators
+    /// @notice public bool that freezes all curation activity for curators
     bool public isActive;
 
-    // public bool that freezes all curation activity for both contract owner + curators
+    /// @notice public bool that freezes all curation activity for both contract owner + curators
     bool public isFinalized = false;
 
-    // caps length of listings array. unlimited curation limit if set to 0
+    /// @notice caps length of listings array. unlimited curation limit if set to 0
     uint256 public curationLimit;
+
+    /// @notice address of Zora ERC721 Transfer Helper
+    address public zoraTransferHelper;
 
     /* ===== MODIFIERS ===== */
 
@@ -111,12 +114,14 @@ contract CurationManager is Context {
         string memory _title,
         IERC721 _curationPass,
         uint256 _curationLimit,
-        bool _isActive
+        bool _isActive,
+        address _zoraTransferHelper
     ) {
         title = _title;
         curationPass = _curationPass;
         curationLimit = _curationLimit;
         isActive = _isActive;
+        zoraTransferHelper = _zoraTransferHelper;
         if (isActive == true) {
             emit CurationResumed(_msgSender());
         } else {
