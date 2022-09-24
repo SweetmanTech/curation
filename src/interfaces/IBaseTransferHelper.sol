@@ -7,5 +7,8 @@ pragma solidity ^0.8.10;
 interface IBaseTransferHelper {
     /// @notice If a user has approved the module they're calling
     /// @param _user The address of the user
-    function isModuleApproved(address _user) external view returns (bool);
+    function isModuleApproved(address _user, address _module)
+        external
+        view
+        returns (bool);
 }

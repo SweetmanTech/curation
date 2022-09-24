@@ -333,8 +333,6 @@ contract ZoraModuleManager {
         address _user,
         bool _approved
     ) private {
-        require(moduleRegistered[_module], "ZMM::must be registered module");
-
         userApprovals[_user][_module] = _approved;
 
         emit ModuleApprovalSet(msg.sender, _module, _approved);

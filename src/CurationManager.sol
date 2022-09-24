@@ -80,6 +80,9 @@ contract CurationManager is Context {
     /// @notice address of zora asks v1.1 module
     address public zoraAsksV1_1;
 
+    /// @notice address of zora asks v1.1 module
+    address public zoraModuleManager;
+
     /* ===== MODIFIERS ===== */
 
     /// @notice checks if _msgSender has a curation pass
@@ -130,7 +133,8 @@ contract CurationManager is Context {
     /// @notice checks if curation limit has been reached
     modifier onlyIfZoraAskModuleApproved() {
         if (
-            !IBaseTransferHelper(zoraTransferHelper).isModuleApproved(
+            !IBaseTransferHelper(zoraModuleManager).isModuleApproved(
+                _msgSender(),
                 zoraAsksV1_1
             )
         ) {
@@ -148,7 +152,8 @@ contract CurationManager is Context {
         uint256 _curationLimit,
         bool _isActive,
         address _zoraTransferHelper,
-        address _zoraAsksV1_1
+        address _zoraAsksV1_1,
+        address _zoraModuleManager
     ) {
         title = _title;
         curationPass = _curationPass;
@@ -156,6 +161,7 @@ contract CurationManager is Context {
         isActive = _isActive;
         zoraTransferHelper = _zoraTransferHelper;
         zoraAsksV1_1 = _zoraAsksV1_1;
+        zoraModuleManager = _zoraModuleManager;
         if (isActive == true) {
             emit CurationResumed(_msgSender());
         } else {
@@ -172,6 +178,7 @@ contract CurationManager is Context {
         onlyCurator
         onlyIfLimit
         onlyIfZoraTransferHelperApproved
+        onlyIfZoraAskModuleApproved
     {
         if (listingCurators[listing] != address(0)) {
             revert ListingAlreadyExists();

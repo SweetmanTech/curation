@@ -40,11 +40,13 @@ contract ContractTest is Test {
             0,
             true,
             address(zoraTransferHelper),
-            address(zoraAsksV1_1)
+            address(zoraAsksV1_1),
+            address(zoraModuleManager)
         );
         vm.startPrank(address(1));
         curationPass.mint();
         curationPass.setApprovalForAll(address(zoraTransferHelper), true);
+        zoraModuleManager.setApprovalForModule(address(zoraAsksV1_1), true);
         vm.stopPrank();
     }
 
@@ -62,6 +64,10 @@ contract ContractTest is Test {
             address(zoraTransferHelper)
         );
         assertEq(curationManager.zoraAsksV1_1(), address(zoraAsksV1_1));
+        assertEq(
+            curationManager.zoraModuleManager(),
+            address(zoraModuleManager)
+        );
     }
 
     function testFail_nonOwnerAddListing() public {
@@ -71,9 +77,15 @@ contract ContractTest is Test {
 
     function testCan_addListing() public {
         vm.prank(address(1));
-        curationManager.addListing(1);
-        uint256[] memory listings = curationManager.viewAllListings();
-        assertEq(listings.length, 1);
+        // curationManager.addListing(1);
+        assertTrue(
+            zoraModuleManager.isModuleApproved(
+                address(1),
+                address(zoraAsksV1_1)
+            )
+        );
+        // uint256[] memory listings = curationManager.viewAllListings();
+        // assertEq(listings.length, 1);
     }
 
     function testFail_nonZoraTransferHelperApprovedAddListing() public {
