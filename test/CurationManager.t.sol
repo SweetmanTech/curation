@@ -9,7 +9,7 @@ import "src/utils/ZoraModuleManager.sol";
 import "src/utils/AsksV1_1.sol";
 
 contract CurationPass is ERC721 {
-    uint256 tokenId = 1;
+    uint256 public tokenId = 1;
 
     constructor() ERC721("Mint Songs", "MS721") {}
 
@@ -43,8 +43,21 @@ contract ContractTest is Test {
         );
         vm.startPrank(address(1));
         curationPass.mint();
+        curationPass.mint();
+        curationPass.mint();
         curationPass.setApprovalForAll(address(zoraTransferHelper), true);
         zoraModuleManager.setApprovalForModule(address(zoraAsksV1_1), true);
+        for (uint8 i = 1; i < curationPass.tokenId(); i++) {
+            zoraAsksV1_1.createAsk(
+                address(curationPass),
+                i,
+                100,
+                address(0),
+                msg.sender,
+                100
+            );
+        }
+
         vm.stopPrank();
     }
 
@@ -106,5 +119,11 @@ contract ContractTest is Test {
         curationManager.addListing(1);
         vm.prank(address(1));
         curationManager.removeListing(1);
+    }
+
+    function testFail_missingZoraAsk() public {
+        vm.startPrank(address(2));
+        curationPass.mint();
+        curationManager.addListing(curationPass.tokenId() - 1);
     }
 }

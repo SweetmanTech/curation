@@ -28,6 +28,9 @@ contract CurationManager is Context {
     /// @notice exceeding curation limit
     error CurationLimitExceeded();
 
+    /// @notice ask does not exist
+    error AskNonExistent();
+
     /* ===== EVENTS ===== */
     event ListingAdded(address indexed curator, uint256 indexed listingToken);
 
@@ -109,6 +112,19 @@ contract CurationManager is Context {
         _;
     }
 
+    // checks if curation limit has been reached
+    modifier onlyIfAskExists(uint256 _tokenId) {
+        if (
+            IAsksV1_1(zoraAsksV1_1)
+                .askForNFT(address(curationPass), _tokenId)
+                .seller == address(0)
+        ) {
+            revert AskNonExistent();
+        }
+
+        _;
+    }
+
     /* ===== CONSTRUCTOR ===== */
 
     constructor(
@@ -138,6 +154,7 @@ contract CurationManager is Context {
         onlyIfActive
         onlyCurator
         onlyIfLimit
+        onlyIfAskExists(listing)
     {
         if (listingCurators[listing] != address(0)) {
             revert ListingAlreadyExists();
