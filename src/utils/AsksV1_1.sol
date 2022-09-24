@@ -2,7 +2,7 @@
 pragma solidity 0.8.10;
 
 import {IERC721} from "openzeppelin-contracts/token/ERC721/IERC721.sol";
-import "src/utils/ZoraV3/ERC721TransferHelper.sol";
+import "./ERC721TransferHelper.sol";
 
 /// @title Asks V1.1
 /// @author tbtstl <t@zora.co>
