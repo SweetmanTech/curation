@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.10;
 
 import "openzeppelin-contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-contracts/utils/Context.sol";
+import "./interfaces/IBaseTransferHelper.sol";
 
 /// @title CurationManager
 /// @notice Facilitates on-chain curation of a dynamic array of ethereum addresses
@@ -26,6 +27,12 @@ contract CurationManager is Context {
 
     /// @notice exceeding curation limit
     error CurationLimitExceeded();
+
+    /// @notice unapproved zora erc721 transfer helper
+    error ZoraTransferHelperNotApproved();
+
+    /// @notice unapproved zora asks v1.1 module
+    error ZoraAsksModuleNotApproved();
 
     /* ===== EVENTS ===== */
     event ListingAdded(address indexed curator, uint256 indexed listingToken);
@@ -67,12 +74,15 @@ contract CurationManager is Context {
     /// @notice caps length of listings array. unlimited curation limit if set to 0
     uint256 public curationLimit;
 
-    /// @notice address of Zora ERC721 Transfer Helper
+    /// @notice address of zora ERC721 transfer helper
     address public zoraTransferHelper;
+
+    /// @notice address of zora asks v1.1 module
+    address public zoraAsksV1_1;
 
     /* ===== MODIFIERS ===== */
 
-    // checks if _msgSender has a curation pass
+    /// @notice checks if _msgSender has a curation pass
     modifier onlyCurator() {
         if (curationPass.balanceOf(_msgSender()) == 0) {
             revert Access_MissingPass();
@@ -81,7 +91,7 @@ contract CurationManager is Context {
         _;
     }
 
-    // checks if curation functionality is active
+    /// @notice checks if curation functionality is active
     modifier onlyIfActive() {
         if (isActive == false) {
             revert Inactive();
@@ -90,7 +100,7 @@ contract CurationManager is Context {
         _;
     }
 
-    // checks if curation functionality is finalized
+    /// @notice checks if curation functionality is finalized
     modifier onlyIfFinalized() {
         if (isFinalized == true) {
             revert Finalized();
@@ -99,10 +109,32 @@ contract CurationManager is Context {
         _;
     }
 
-    // checks if curation limit has been reached
+    /// @notice checks if curation limit has been reached
     modifier onlyIfLimit() {
         if (curationLimit != 0 && listings.length == curationLimit) {
             revert CurationLimitExceeded();
+        }
+
+        _;
+    }
+
+    /// @notice checks if curation limit has been reached
+    modifier onlyIfZoraTransferHelperApproved() {
+        if (!curationPass.isApprovedForAll(_msgSender(), zoraTransferHelper)) {
+            revert ZoraTransferHelperNotApproved();
+        }
+
+        _;
+    }
+
+    /// @notice checks if curation limit has been reached
+    modifier onlyIfZoraAskModuleApproved() {
+        if (
+            !IBaseTransferHelper(zoraTransferHelper).isModuleApproved(
+                zoraAsksV1_1
+            )
+        ) {
+            revert ZoraAsksModuleNotApproved();
         }
 
         _;
@@ -115,13 +147,15 @@ contract CurationManager is Context {
         IERC721 _curationPass,
         uint256 _curationLimit,
         bool _isActive,
-        address _zoraTransferHelper
+        address _zoraTransferHelper,
+        address _zoraAsksV1_1
     ) {
         title = _title;
         curationPass = _curationPass;
         curationLimit = _curationLimit;
         isActive = _isActive;
         zoraTransferHelper = _zoraTransferHelper;
+        zoraAsksV1_1 = _zoraAsksV1_1;
         if (isActive == true) {
             emit CurationResumed(_msgSender());
         } else {
@@ -137,6 +171,7 @@ contract CurationManager is Context {
         onlyIfActive
         onlyCurator
         onlyIfLimit
+        onlyIfZoraTransferHelperApproved
     {
         if (listingCurators[listing] != address(0)) {
             revert ListingAlreadyExists();
