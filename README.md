@@ -33,7 +33,7 @@ forge install
 forge test
 ```
 
-> Deploy locally
+> Deploy
 
 - prerequisites: Installed dependencies & Environment variables
 
