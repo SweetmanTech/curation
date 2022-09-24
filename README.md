@@ -22,10 +22,23 @@ cd curation
 forge install
 ```
 
+> Environment variables
+
+- required for deployment
+  copy `.env.example` to `.env` and add your environment variables
+
 > Test locally
 
 ```
 forge test
+```
+
+> Deploy locally
+
+- prerequisites: Installed dependencies & Environment variables
+
+```
+node scripts/deploy.mjs
 ```
 
 You now have a version of the Sint Mongs curation contracts available locally :))
@@ -36,3 +49,4 @@ You now have a version of the Sint Mongs curation contracts available locally :)
 
 - 0xTranqui - [curation](https://github.com/0xTranqui/curation)
 - 0xTranqui - [present-materials](https://github.com/0xTranqui/present-materials)
+- Zora - [zora-drops-contract](https://github.com/ourzora/zora-drops-contracts)
