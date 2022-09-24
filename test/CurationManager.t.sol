@@ -50,4 +50,48 @@ contract ContractTest is Test {
         uint256[] memory listings = curationManager.viewAllListings();
         assertEq(listings.length, 1);
     }
+
+    function testCan_addMultipleListings() public {
+        vm.startPrank(address(1));
+        curationPass.mint();
+        curationManager.addListing(1);
+        curationManager.addListing(2);
+        curationManager.addListing(3);
+        uint256[] memory listings = curationManager.viewAllListings();
+        assertEq(listings.length, 3);
+    }
+
+    function testFail_addDuplicateListings() public {
+        vm.startPrank(address(1));
+        curationPass.mint();
+        curationManager.addListing(1);
+        curationManager.addListing(1);
+    }
+
+    function testCan_listingCurator() public {
+        vm.prank(address(1));
+        curationPass.mint();
+        vm.prank(address(1));
+        curationManager.addListing(1);
+        address curator = curationManager.listingCurators(1);
+        assertEq(curator, address(1));
+    }
+
+    function testFail_removeNonCuratedListing() public {
+        vm.prank(address(1));
+        curationPass.mint();
+        vm.prank(address(1));
+        curationManager.addListing(1);
+        /// @dev non-curator fails
+        curationManager.removeListing(1);
+    }
+
+    function testCan_removeListing() public {
+        vm.prank(address(1));
+        curationPass.mint();
+        vm.prank(address(1));
+        curationManager.addListing(1);
+        vm.prank(address(1));
+        curationManager.removeListing(1);
+    }
 }
